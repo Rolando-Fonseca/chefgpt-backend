@@ -133,7 +133,7 @@ Ingredientes donde `expiration_date - now <= 48h`. Se marcan con `[POR_VENCER]` 
 | Al menos una receta debe tener `uses_expiring` no vacío (si hay ingredientes por vencer) | `recipes.some(r => r.uses_expiring.length > 0)` cuando `expiring.length > 0` |
 | No debe existir la key `error` junto con `recipes` | Mutuamente excluyentes |
 
-Si alguna regla falla, se descarta la respuesta y se ejecuta la capa 3 de reintento (ver `ai-openrouter.md`).
+Si alguna regla falla, se descarta la respuesta y se ejecuta la capa 3 de reintento (ver `ai-groq.md`).
 
 ---
 

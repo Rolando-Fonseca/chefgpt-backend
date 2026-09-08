@@ -19,10 +19,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
 
-VOLUME /data
-
 ENV NODE_ENV=production
-ENV DATABASE_PATH=/data/chefgpt.db
 
 EXPOSE 3000
 

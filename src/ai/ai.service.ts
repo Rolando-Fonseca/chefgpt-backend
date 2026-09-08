@@ -14,8 +14,8 @@ import {
   AiRecipesResponse,
   AiTrace,
   GenerateRecipesResponse,
-  OpenRouterMessage,
-  OpenRouterResponse,
+  ChatMessage,
+  ChatCompletionResponse,
 } from './ai.types';
 import {
   buildMessages,
@@ -32,25 +32,21 @@ export class AiService {
   private readonly maxRetries: number;
   private readonly temperature: number;
   private readonly maxTokens: number;
-  private readonly referer?: string;
-  private readonly title?: string;
   private readonly basics: string[];
 
   constructor(
     private readonly config: ConfigService,
     private readonly inventoryService: InventoryService,
   ) {
-    this.apiKey = config.get<string>('OPENROUTER_API_KEY', '');
+    this.apiKey = config.get<string>('GROQ_API_KEY', '');
     this.model = config.get<string>(
-      'OPENROUTER_MODEL',
-      'anthropic/claude-3-5-haiku-20241022',
+      'GROQ_MODEL',
+      'llama-3.3-70b-versatile',
     );
     this.timeoutMs = config.get<number>('AI_TIMEOUT_MS', 15000);
     this.maxRetries = config.get<number>('AI_MAX_RETRIES', 2);
     this.temperature = config.get<number>('AI_TEMPERATURE', 0.7);
     this.maxTokens = config.get<number>('AI_MAX_TOKENS', 1024);
-    this.referer = config.get<string>('OPENROUTER_REFERER');
-    this.title = config.get<string>('OPENROUTER_TITLE');
 
     const basicsStr = config.get<string>(
       'AI_BASICS',
@@ -64,7 +60,7 @@ export class AiService {
   ): Promise<GenerateRecipesResponse> {
     if (!this.apiKey) {
       throw new ServiceUnavailableException(
-        'OpenRouter API key not configured',
+        'Groq API key not configured',
       );
     }
 
@@ -87,7 +83,7 @@ export class AiService {
 
     while (retryCount <= this.maxRetries) {
       try {
-        const result = await this.callOpenRouter(messages, traceId);
+        const result = await this.callGroq(messages, traceId);
         const content = result.choices[0]?.message?.content ?? '';
 
         // Capa 1: extract JSON
@@ -201,10 +197,10 @@ export class AiService {
     );
   }
 
-  private async callOpenRouter(
-    messages: OpenRouterMessage[],
+  private async callGroq(
+    messages: ChatMessage[],
     traceId: string,
-  ): Promise<OpenRouterResponse> {
+  ): Promise<ChatCompletionResponse> {
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(),
@@ -215,11 +211,9 @@ export class AiService {
       Authorization: `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json',
     };
-    if (this.referer) headers['HTTP-Referer'] = this.referer;
-    if (this.title) headers['X-Title'] = this.title;
 
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers,
         signal: controller.signal,
@@ -261,7 +255,7 @@ export class AiService {
         throw err;
       }
 
-      return (await response.json()) as OpenRouterResponse;
+      return (await response.json()) as ChatCompletionResponse;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         const err: AiCallError = new Error('Timeout');
@@ -361,7 +355,7 @@ export class AiService {
   }
 
   private async retryWithCorrection(
-    messages: OpenRouterMessage[],
+    messages: ChatMessage[],
     lastContent: string,
     currentRetry: number,
     reason: string,

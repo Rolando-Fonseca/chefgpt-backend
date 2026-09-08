@@ -17,7 +17,7 @@ export class HealthService {
       db = 'error';
     }
 
-    const apiKey = this.config.get<string>('OPENROUTER_API_KEY', '');
+    const apiKey = this.config.get<string>('GROQ_API_KEY', '');
     const ai = apiKey ? 'configured' : 'not_configured';
 
     const status = db === 'connected' ? 'ok' : 'degraded';
@@ -31,12 +31,12 @@ export class HealthService {
   }
 
   checkAi() {
-    const apiKey = this.config.get<string>('OPENROUTER_API_KEY', '');
+    const apiKey = this.config.get<string>('GROQ_API_KEY', '');
     return {
       ai: apiKey ? 'configured' : 'not_configured',
       model: this.config.get<string>(
-        'OPENROUTER_MODEL',
-        'anthropic/claude-3-5-haiku-20241022',
+        'GROQ_MODEL',
+        'llama-3.3-70b-versatile',
       ),
       timeoutMs: this.config.get<number>('AI_TIMEOUT_MS', 15000),
       maxRetries: this.config.get<number>('AI_MAX_RETRIES', 2),

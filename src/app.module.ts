@@ -11,8 +11,9 @@ import { HealthModule } from './health/health.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'better-sqlite3',
-        database: config.get<string>('DATABASE_PATH', 'chefgpt.db'),
+        type: 'postgres',
+        url: config.get<string>('DATABASE_URL'),
+        ssl: { rejectUnauthorized: false },
         autoLoadEntities: true,
         synchronize: config.get<string>('NODE_ENV') !== 'production',
       }),

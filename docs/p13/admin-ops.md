@@ -146,12 +146,12 @@ Indica si el servidor está vivo y la base de datos responde.
 |---|---|---|
 | `status` | `ok` \| `degraded` | `ok` = todo funcional, `degraded` = algún componente falla |
 | `db` | `connected` \| `error` | Si la DB no responde, el estado general es `degraded` |
-| `ai` | `configured` \| `not_configured` | `not_configured` = `OPENROUTER_API_KEY` vacía, recetas no disponibles |
+| `ai` | `configured` \| `not_configured` | `not_configured` = `GROQ_API_KEY` vacía, recetas no disponibles |
 | `timestamp` | ISO 8601 | Momento del check |
 
 ### GET /health/ai
 
-Indica si la integración con OpenRouter está operativa, sin hacer una llamada real al modelo.
+Indica si la integración con Groq está operativa, sin hacer una llamada real al modelo.
 
 ```json
 {
@@ -261,8 +261,8 @@ POST /inventory → agregar ingredientes nuevos
 | Síntoma | Diagnóstico | Acción |
 |---|---|---|
 | `GET /health` devuelve `db: error` | Archivo `.db` corrupto o bloqueado | Detener servidor, verificar permisos, reiniciar |
-| `POST /ai/recipes` devuelve 503 | API key no configurada | Verificar `OPENROUTER_API_KEY` en `.env` |
-| `POST /ai/recipes` devuelve 502 con traceId | Modelo no responde o devuelve JSON inválido | Revisar logs con el traceId, verificar crédito en OpenRouter |
-| `POST /ai/recipes` devuelve 429 | Rate limit de OpenRouter | Esperar y reintentar, o cambiar plan |
+| `POST /ai/recipes` devuelve 503 | API key no configurada | Verificar `GROQ_API_KEY` en `.env` |
+| `POST /ai/recipes` devuelve 502 con traceId | Modelo no responde o devuelve JSON inválido | Revisar logs con el traceId, verificar estado del servicio en status.groq.com |
+| `POST /ai/recipes` devuelve 429 | Rate limit de Groq | Esperar y reintentar — el free tier tiene límites por minuto/día, ver console.groq.com |
 | `POST /inventory` devuelve 400 "must be unique" | Ingrediente ya existe | Usar `PATCH` para actualizar cantidad |
 | Swagger no carga en `/api/docs` | Servidor no arrancó o puerto ocupado | Verificar consola, chequear `PORT` en `.env` |

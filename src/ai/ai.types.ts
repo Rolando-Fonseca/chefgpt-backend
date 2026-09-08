@@ -40,18 +40,18 @@ export interface AiTrace {
   errorCode?: string;
 }
 
-export interface OpenRouterMessage {
+export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-export interface OpenRouterUsage {
+export interface ChatUsage {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
 }
 
-export interface OpenRouterResponse {
+export interface ChatCompletionResponse {
   choices: { message: { content: string } }[];
-  usage: OpenRouterUsage;
+  usage: ChatUsage;
 }

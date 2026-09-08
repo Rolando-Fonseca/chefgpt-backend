@@ -1,6 +1,6 @@
 import { Ingredient } from '../inventory/ingredient.entity';
 import { GenerateRecipesDto } from './dto/generate-recipes.dto';
-import { OpenRouterMessage } from './ai.types';
+import { ChatMessage } from './ai.types';
 
 export const EXPIRY_WINDOW_HOURS = 48;
 export const MAX_RECIPES = 3;
@@ -33,7 +33,7 @@ export function buildMessages(
   ingredients: Ingredient[],
   dto: GenerateRecipesDto,
   basics: string[] = DEFAULT_BASICS,
-): OpenRouterMessage[] {
+): ChatMessage[] {
   const now = new Date();
   const threshold = new Date(now.getTime() + EXPIRY_WINDOW_HOURS * 60 * 60 * 1000);
 
