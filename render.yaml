@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: chefgpt-backend
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_MODEL
+        value: qwen/qwen3.8-27b
+      - key: AI_TIMEOUT_MS
+        value: "15000"
+      - key: AI_MAX_RETRIES
+        value: "2"
+      - key: AI_TEMPERATURE
+        value: "0.7"
+      - key: AI_MAX_TOKENS
+        value: "1024"
+      - key: AI_BASICS
+        value: "sal,pimienta,aceite de oliva,agua"
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false

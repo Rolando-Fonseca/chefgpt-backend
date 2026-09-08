@@ -62,11 +62,24 @@ si se selecciona "Docker" como Environment.
 
 ## 3. Configuración en Render
 
-### Crear servicio
+### Opción A — Blueprint (recomendado, usa `render.yaml` del repo)
+
+El repo incluye `render.yaml` en la raíz con el build/start command, el health check
+y las variables plain ya definidas. Los dos secrets (`DATABASE_URL`, `GROQ_API_KEY`)
+están marcados `sync: false` a propósito — Render los pide en el momento del setup
+en vez de leerlos del archivo (el repo es público, nunca deben quedar en el YAML).
+
+1. [dashboard.render.com](https://dashboard.render.com) → **New → Blueprint**
+2. Conectar el repo de GitHub `chefgpt-backend` (autoriza la GitHub App de Render la primera vez)
+3. Render detecta `render.yaml` automáticamente y muestra el plan del servicio
+4. Completar `DATABASE_URL` y `GROQ_API_KEY` cuando los pida
+5. **Apply** → despliega
+
+### Opción B — Servicio manual (si prefieres configurar todo a mano)
 
 1. [dashboard.render.com](https://dashboard.render.com) → **New → Web Service**
 2. **Source:** conectar el repo de GitHub `chefgpt-backend`
-3. **Branch:** `master` (o `main`, según cómo se nombró al hacer push)
+3. **Branch:** `master`
 4. **Region:** la más cercana (Oregon/Frankfurt suelen ser las opciones gratuitas)
 5. **Instance Type:** Free
 6. **Port:** Render detecta el puerto vía la variable `PORT` que él mismo inyecta — no hace falta fijar `3000`
