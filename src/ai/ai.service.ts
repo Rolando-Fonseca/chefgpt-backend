@@ -41,12 +41,15 @@ export class AiService {
     this.apiKey = config.get<string>('GROQ_API_KEY', '');
     this.model = config.get<string>(
       'GROQ_MODEL',
-      'llama-3.3-70b-versatile',
+      'qwen/qwen3.8-27b',
     );
-    this.timeoutMs = config.get<number>('AI_TIMEOUT_MS', 15000);
-    this.maxRetries = config.get<number>('AI_MAX_RETRIES', 2);
-    this.temperature = config.get<number>('AI_TEMPERATURE', 0.7);
-    this.maxTokens = config.get<number>('AI_MAX_TOKENS', 1024);
+    // ConfigService.get<number>() does NOT cast at runtime — env vars are always
+    // strings, and sending e.g. max_tokens:"1024" makes Groq reject the request
+    // with 400 ('max_tokens' : value must be an integer). Force real numbers.
+    this.timeoutMs = Number(config.get<string>('AI_TIMEOUT_MS', '15000'));
+    this.maxRetries = Number(config.get<string>('AI_MAX_RETRIES', '2'));
+    this.temperature = Number(config.get<string>('AI_TEMPERATURE', '0.7'));
+    this.maxTokens = Number(config.get<string>('AI_MAX_TOKENS', '1024'));
 
     const basicsStr = config.get<string>(
       'AI_BASICS',

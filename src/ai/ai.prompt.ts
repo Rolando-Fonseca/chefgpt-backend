@@ -20,7 +20,25 @@ REGLAS INVARIABLES:
 6. Indica la cantidad exacta de cada ingrediente según lo disponible. Nunca pidas más de lo que hay.
 7. Respeta el tipo de cocina y las restricciones alimentarias del usuario.
 8. Responde EXCLUSIVAMENTE con un objeto JSON válido. Sin texto antes, sin texto después, sin bloques de código markdown, sin explicaciones.
-9. Si no puedes generar recetas con los ingredientes dados, devuelve: {"error": "Insufficient ingredients"}`;
+9. Si no puedes generar recetas con los ingredientes dados, devuelve: {"error": "Insufficient ingredients"}
+
+ESQUEMA JSON EXACTO (usa estos nombres de campo en inglés, sin traducirlos ni agregar otros):
+{
+  "recipes": [
+    {
+      "name": string,
+      "servings": number,
+      "prep_minutes": number,
+      "cook_minutes": number,
+      "ingredients": [ { "name": string, "quantity": number, "unit": string } ],
+      "steps": [string],
+      "uses_expiring": [string]
+    }
+  ]
+}
+"ingredients[].quantity" es siempre un number (nunca un string como "500 g"), y "unit" va aparte.
+"uses_expiring" lista los nombres de los ingredientes POR_VENCER usados en esa receta (array vacío si no aplica).
+Máximo 3 recetas por respuesta.`;
 
 interface IngredientForPrompt {
   name: string;
@@ -85,4 +103,7 @@ Devuelve un JSON con el esquema especificado. Sin texto adicional.`;
 }
 
 export const RETRY_CORRECTION_PROMPT =
-  'Tu respuesta anterior no fue JSON válido. Responde SOLO con JSON, sin texto adicional ni bloques de código.';
+  'Tu respuesta anterior no cumplió el esquema. Responde SOLO con JSON usando EXACTAMENTE ' +
+  'estos nombres de campo en inglés: {"recipes":[{"name","servings","prep_minutes",' +
+  '"cook_minutes","ingredients":[{"name","quantity","unit"}],"steps","uses_expiring"}]}. ' +
+  '"quantity" debe ser number, no string. Sin texto adicional ni bloques de código.';

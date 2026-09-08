@@ -15,7 +15,7 @@ Arquitectura de la llamada LLM para generar recetas desde el inventario de ChefG
 | Variable | Requerida | Descripción |
 |---|---|---|
 | `GROQ_API_KEY` | Sí | Clave de API de Groq (`gsk_…`), gratis en [console.groq.com](https://console.groq.com/keys) |
-| `GROQ_MODEL` | Sí | ID del modelo, ej. `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | Sí | ID del modelo, ej. `qwen/qwen3.8-27b` |
 | `AI_TIMEOUT_MS` | No | Timeout por llamada (default `15000`) |
 
 ### Reglas
@@ -52,8 +52,20 @@ Groq no usa headers de ranking/dashboard como `HTTP-Referer` o `X-Title` (eso er
 | `temperature` | `0.7` | Balance creatividad/coherencia. Subir a 0.9 para explorar, bajar a 0.3 para determinismo |
 | `max_tokens` | `1024` | Suficiente para 1-2 recetas con pasos. Ajustar si se generan menús semanales |
 | `top_p` | `0.9` | Nucleus sampling. No combinar cambios simultáneos con temperature |
-| `response_format` | `{ "type": "json_object" }` | Fuerza JSON siempre que el prompt lo pida explícitamente. Soportado por los modelos Llama 3.x de Groq |
+| `response_format` | `{ "type": "json_object" }` | Fuerza JSON siempre que el prompt lo pida explícitamente |
 | `stop` | No usar | Sin secuencias de parada; confiar en `response_format` |
+
+### Elegir modelo: evitar modelos "razonadores"
+
+El catálogo de Groq cambia con frecuencia (modelos se deprecan y aparecen otros — ver
+[console.groq.com/docs/models](https://console.groq.com/docs/models) para la lista vigente,
+o `GET /openai/v1/models` con la API key). Al elegir `GROQ_MODEL`, evitar modelos de
+razonamiento explícito (p. ej. la familia `openai/gpt-oss-*`): generan un bloque `reasoning`
+interno antes del JSON final, consumen buena parte de `max_tokens` pensando, y con un
+presupuesto ajustado pueden devolver contenido vacío (`json_validate_failed`). Un modelo
+instruct directo (como `qwen/qwen3.8-27b`) responde el JSON limpio, más rápido y sin ese
+riesgo — es la elección correcta para este caso de uso donde se necesita JSON estricto
+dentro de un `max_tokens` fijo.
 
 ### Política de timeout
 
@@ -79,7 +91,7 @@ Cada llamada LLM genera un **trace ID** interno (`uuid v4`). Toda referencia en 
 | Campo | Ejemplo | Nota |
 |---|---|---|
 | `traceId` | `a1b2c3d4-…` | UUID generado por request |
-| `model` | `llama-3.3-70b-versatile` | Modelo efectivo usado |
+| `model` | `qwen/qwen3.8-27b` | Modelo efectivo usado |
 | `promptTokens` | `312` | Del campo `usage.prompt_tokens` de la respuesta |
 | `completionTokens` | `487` | Del campo `usage.completion_tokens` |
 | `latencyMs` | `2340` | Delta entre envío y recepción |
@@ -177,7 +189,7 @@ Llamada LLM
 ```env
 # AI — Groq
 GROQ_API_KEY=gsk_xxxxxxxxxxxxx
-GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_MODEL=qwen/qwen3.8-27b
 AI_TIMEOUT_MS=15000
 AI_MAX_RETRIES=2
 AI_TEMPERATURE=0.7

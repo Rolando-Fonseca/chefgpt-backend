@@ -98,7 +98,7 @@ Configurar en Render → Service → Environment:
 | Variable | Valor en producción | Tipo |
 |---|---|---|
 | `NODE_ENV` | `production` | Plain |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Plain |
+| `GROQ_MODEL` | `qwen/qwen3.8-27b` | Plain |
 | `AI_TIMEOUT_MS` | `15000` | Plain |
 | `AI_MAX_RETRIES` | `2` | Plain |
 | `AI_TEMPERATURE` | `0.7` | Plain |
@@ -272,7 +272,7 @@ está vacío, primero cargar unos ingredientes con `POST /inventory` (ver `admin
 
 **Log de trace LLM de ejemplo:**
 ```
-[AiService] {"traceId":"a1b2c3d4-...","model":"llama-3.3-70b-versatile","promptTokens":312,"completionTokens":487,"latencyMs":890,"status":"success","retryCount":0}
+[AiService] {"traceId":"a1b2c3d4-...","model":"qwen/qwen3.8-27b","promptTokens":312,"completionTokens":487,"latencyMs":890,"status":"success","retryCount":0}
 ```
 
 Si el trace muestra `status: "error"` y `errorCode: "auth"`, la API key de Groq es inválida.

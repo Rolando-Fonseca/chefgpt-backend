@@ -1,6 +1,15 @@
 # P13 — Diseño del Prompt Dinámico para ChefGPT
 
-Context Engineering: cómo se construye el prompt que recibe Haiku para generar recetas desde el inventario.
+Context Engineering: cómo se construye el prompt que recibe el modelo (Groq) para generar recetas desde el inventario.
+
+> **Lección aprendida al migrar de Claude Haiku a Groq/Qwen:** la primera versión del
+> `SYSTEM_PROMPT` en `ai.prompt.ts` nunca incluía el esquema JSON explícito (solo decía
+> "responde en JSON", el esquema vivía únicamente en este doc, sección 3). Con Haiku
+> nunca falló visiblemente. Con Qwen, el modelo inventó su propio esquema en español
+> (`recetas`, `nombre`, `cantidad` como string libre) y la validación de `ai.service.ts`
+> lo rechazó. El esquema ahora está embebido literalmente en `SYSTEM_PROMPT` y en
+> `RETRY_CORRECTION_PROMPT` — nunca depender de que el modelo "adivine" un esquema
+> documentado solo fuera del prompt.
 
 ---
 
@@ -23,7 +32,14 @@ REGLAS INVARIABLES:
 7. Respeta el tipo de cocina y las restricciones alimentarias del usuario.
 8. Responde EXCLUSIVAMENTE con un objeto JSON válido. Sin texto antes, sin texto después, sin bloques de código markdown, sin explicaciones.
 9. Si no puedes generar recetas con los ingredientes dados, devuelve: {"error": "Insufficient ingredients"}
+
+ESQUEMA JSON EXACTO (usa estos nombres de campo en inglés, sin traducirlos ni agregar otros):
+{ "recipes": [ { "name", "servings", "prep_minutes", "cook_minutes",
+  "ingredients": [{"name","quantity","unit"}], "steps", "uses_expiring" } ] }
 ```
+
+El esquema se repite literalmente dentro del `SYSTEM_PROMPT` (no solo en este doc) —
+ver la nota de migración al inicio de este archivo sobre por qué es obligatorio.
 
 ### User prompt — plantilla con variables
 

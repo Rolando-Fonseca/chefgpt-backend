@@ -36,10 +36,10 @@ export class HealthService {
       ai: apiKey ? 'configured' : 'not_configured',
       model: this.config.get<string>(
         'GROQ_MODEL',
-        'llama-3.3-70b-versatile',
+        'qwen/qwen3.8-27b',
       ),
-      timeoutMs: this.config.get<number>('AI_TIMEOUT_MS', 15000),
-      maxRetries: this.config.get<number>('AI_MAX_RETRIES', 2),
+      timeoutMs: Number(this.config.get<string>('AI_TIMEOUT_MS', '15000')),
+      maxRetries: Number(this.config.get<string>('AI_MAX_RETRIES', '2')),
     };
   }
 }
